@@ -1,0 +1,17 @@
+[package]
+name = "cbz"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+log = "0.4"
+serde = { version = "1.0.228", features = ["derive"] }
+serde-xml-rs = "0.8.2"
+sevenz-rust2 = "0.20.2"
+tar = "0.4.45"
+thiserror = "2.0.18"
+zip = "8.5.0"
+
+[dev-dependencies]
+anyhow = "1.0.102"
+clap = { version = "4.6.0", features = ["derive"] }
