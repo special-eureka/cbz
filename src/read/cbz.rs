@@ -77,7 +77,10 @@ mod tests {
 
     use anyhow::anyhow;
 
-    use crate::{read::ComicBookReader, test_utils::ordered_images};
+    use crate::{
+        read::ComicBookReader,
+        test_utils::{no_order_images, ordered_images},
+    };
 
     use super::CbzReader;
 
@@ -132,6 +135,31 @@ mod tests {
         }
         assert!(reader.get_file("test-metadata.txt").is_ok());
         assert!(reader.get_file("nothingasdasdasdasdasd.cbor").is_err());
+        Ok(())
+    }
+    #[test]
+    fn test_no_order_read() -> anyhow::Result<()> {
+        let mut reader = CbzReader::from_path("test-data/archives/md-test.cbz")?;
+        let images = reader.images();
+        assert_eq!(&images, &no_order_images());
+        for (index, image_name) in images.iter().enumerate() {
+            let initial_file_buf = {
+                let mut buf = Vec::<u8>::new();
+                let mut reader = BufReader::new(File::open(format!(
+                    "test-data/images/no-order/{image_name}"
+                ))?);
+                io::copy(&mut reader, &mut buf)?;
+                buf
+            };
+            // Test images path
+            let archive_buf = reader.get_image_by_path(image_name)?;
+            assert_eq!(&initial_file_buf, &archive_buf);
+            // Test image index
+            let Some(archive_buf) = reader.get_image_by_index(index)? else {
+                return Err(anyhow!("There should be something at this index {index}"));
+            };
+            assert_eq!(&initial_file_buf, &archive_buf);
+        }
         Ok(())
     }
 }
