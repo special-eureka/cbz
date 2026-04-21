@@ -106,4 +106,32 @@ mod tests {
         }
         Ok(())
     }
+    #[test]
+    fn test_ordered_read_with_metadata() -> anyhow::Result<()> {
+        let mut reader =
+            CbzReader::from_path("test-data/archives/archived-ordered-with-metadata.cbz")?;
+        let images = reader.images();
+        assert_eq!(&images, &ordered_images());
+        for (index, image_name) in images.iter().enumerate() {
+            let initial_file_buf = {
+                let mut buf = Vec::<u8>::new();
+                let mut reader = BufReader::new(File::open(format!(
+                    "test-data/images/ordered/{image_name}"
+                ))?);
+                io::copy(&mut reader, &mut buf)?;
+                buf
+            };
+            // Test images path
+            let archive_buf = reader.get_image_by_path(image_name)?;
+            assert_eq!(&initial_file_buf, &archive_buf);
+            // Test image index
+            let Some(archive_buf) = reader.get_image_by_index(index)? else {
+                return Err(anyhow!("There should be something at this index {index}"));
+            };
+            assert_eq!(&initial_file_buf, &archive_buf);
+        }
+        assert!(reader.get_file("test-metadata.txt").is_ok());
+        assert!(reader.get_file("nothingasdasdasdasdasd.cbor").is_err());
+        Ok(())
+    }
 }
