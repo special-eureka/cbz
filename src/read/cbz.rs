@@ -1,5 +1,4 @@
 use std::{
-    collections::BTreeSet,
     fs::File,
     io::{self, BufReader, Read, Seek},
     path::Path,
@@ -43,7 +42,8 @@ where
 {
     type Error = zip::result::ZipError;
     fn images(&self) -> Vec<String> {
-        self.inner_zip
+        let mut images = self
+            .inner_zip
             .file_names()
             .filter_map(|e| -> Option<String> {
                 let e_p = Path::new(e);
@@ -54,9 +54,9 @@ where
                     None
                 }
             })
-            .collect::<BTreeSet<String>>()
-            .into_iter()
-            .collect()
+            .collect::<Vec<String>>();
+        images.dedup();
+        images
     }
 
     fn get_file(&mut self, file_path: &str) -> Result<Vec<u8>, Self::Error> {
