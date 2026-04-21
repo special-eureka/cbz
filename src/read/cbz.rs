@@ -70,14 +70,40 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::{
+        fs::File,
+        io::{self, BufReader},
+    };
+
+    use anyhow::anyhow;
+
     use crate::{read::ComicBookReader, test_utils::ordered_images};
 
     use super::CbzReader;
+
     #[test]
     fn test_ordered_read() -> anyhow::Result<()> {
-        let reader = CbzReader::from_path("test-data/archives/archived-ordered.cbz")?;
+        let mut reader = CbzReader::from_path("test-data/archives/archived-ordered.cbz")?;
         let images = reader.images();
         assert_eq!(&images, &ordered_images());
+        for (index, image_name) in images.iter().enumerate() {
+            let initial_file_buf = {
+                let mut buf = Vec::<u8>::new();
+                let mut reader = BufReader::new(File::open(format!(
+                    "test-data/images/ordered/{image_name}"
+                ))?);
+                io::copy(&mut reader, &mut buf)?;
+                buf
+            };
+            // Test images path
+            let archive_buf = reader.get_image_by_path(image_name)?;
+            assert_eq!(&initial_file_buf, &archive_buf);
+            // Test image index
+            let Some(archive_buf) = reader.get_image_by_index(index)? else {
+                return Err(anyhow!("There should be something at this index {index}"));
+            };
+            assert_eq!(&initial_file_buf, &archive_buf);
+        }
         Ok(())
     }
 }
