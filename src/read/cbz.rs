@@ -4,9 +4,31 @@ use std::{
     path::Path,
 };
 
-use zip::{read::ZipArchive, result::ZipResult};
+use zip::{
+    read::{
+        ZipArchive,
+        // ZipFile
+    },
+    result::ZipResult,
+};
 
 use crate::read::ComicBookReader;
+
+// pub struct CbzImagesIter<'a, R> {
+//     images: std::vec::IntoIter<String>,
+//     reader: &'a mut ZipArchive<R>,
+// }
+
+// impl<'a, R> Iterator for CbzImagesIter<'a, R>
+// where
+//     R: Read + Seek,
+// {
+//     type Item = ZipResult<ZipFile<'a, R>>;
+//     fn next(&mut self) -> Option<Self::Item> {
+//         let path = self.images.next()?;
+//         Some(self.reader.by_path(path))
+//     }
+// }
 
 /// A generic cbz reader
 ///
@@ -35,6 +57,19 @@ impl CbzReader<BufReader<File>> {
         Ok(CbzReader { inner_zip: zip })
     }
 }
+
+// TODO impl
+// impl<R> CbzReader<R>
+// where
+//     R: Read + Seek,
+// {
+//     pub fn iter_images(&mut self) -> CbzImagesIter<'_, R> {
+//         CbzImagesIter {
+//             images: self.images().into_iter(),
+//             reader: &mut self.inner_zip,
+//         }
+//     }
+// }
 
 impl<R> ComicBookReader for CbzReader<R>
 where
