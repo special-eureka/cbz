@@ -59,6 +59,7 @@ where
         let mut maybe_file = BufReader::new(self.inner_zip.by_path(file_path)?);
         let mut buf = Vec::<u8>::with_capacity(maybe_file.get_ref().size() as _);
         io::copy(&mut maybe_file, &mut buf)?;
+        buf.shrink_to_fit();
         Ok(buf)
     }
 }
