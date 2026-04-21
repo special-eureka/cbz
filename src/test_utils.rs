@@ -18,3 +18,11 @@ pub const NO_ORDER_IMAGES: &[&str] = &[
 ];
 
 pub const ORDERED_IMAGES: &[&str] = &["001.jpg", "002.jpg"];
+
+pub fn no_order_images() -> Vec<String> {
+    NO_ORDER_IMAGES.iter().map(|e| String::from(*e)).collect()
+}
+
+pub fn ordered_images() -> Vec<String> {
+    ORDERED_IMAGES.iter().map(|e| String::from(*e)).collect()
+}

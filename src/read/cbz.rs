@@ -25,11 +25,15 @@ impl<R> CbzReader<R> {
     pub fn from_zip_reader(zip: ZipArchive<R>) -> Self {
         Self { inner_zip: zip }
     }
-    pub fn from_path<P>(path: P) -> ZipResult<zip::read::ZipArchive<BufReader<File>>>
+}
+
+impl CbzReader<BufReader<File>> {
+    pub fn from_path<P>(path: P) -> ZipResult<Self>
     where
         P: AsRef<Path>,
     {
-        zip::ZipArchive::new(BufReader::new(File::open(path)?))
+        let zip = zip::ZipArchive::new(BufReader::new(File::open(path)?))?;
+        Ok(CbzReader { inner_zip: zip })
     }
 }
 
@@ -61,5 +65,19 @@ where
         io::copy(&mut maybe_file, &mut buf)?;
         buf.shrink_to_fit();
         Ok(buf)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{read::ComicBookReader, test_utils::ordered_images};
+
+    use super::CbzReader;
+    #[test]
+    fn test_ordered_read() -> anyhow::Result<()> {
+        let reader = CbzReader::from_path("test-data/archives/archived-ordered.cbz")?;
+        let images = reader.images();
+        assert_eq!(&images, &ordered_images());
+        Ok(())
     }
 }
