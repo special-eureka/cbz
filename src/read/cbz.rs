@@ -76,7 +76,7 @@ where
     R: Read + Seek,
 {
     type Error = zip::result::ZipError;
-    fn images(&self) -> Vec<String> {
+    fn images_unordered(&self) -> Vec<String> {
         let mut images = self
             .inner_zip
             .file_names()
@@ -175,7 +175,7 @@ mod tests {
     #[test]
     fn test_no_order_read() -> anyhow::Result<()> {
         let mut reader = CbzReader::from_path("test-data/archives/md-test.cbz")?;
-        let images = reader.images();
+        let images = reader.images_unordered();
         assert_eq!(&images, &no_order_images());
         for (index, image_name) in images.iter().enumerate() {
             let initial_file_buf = {
