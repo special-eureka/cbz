@@ -114,7 +114,7 @@ mod tests {
 
     use crate::{
         read::ComicBookReader,
-        test_utils::{no_order_images, ordered_images},
+        test_utils::{no_order_images, ordered_2_images, ordered_images},
     };
 
     use super::CbzReader;
@@ -182,6 +182,31 @@ mod tests {
                 let mut buf = Vec::<u8>::new();
                 let mut reader = BufReader::new(File::open(format!(
                     "test-data/images/no-order/{image_name}"
+                ))?);
+                io::copy(&mut reader, &mut buf)?;
+                buf
+            };
+            // Test images path
+            let archive_buf = reader.get_image_by_path(image_name)?;
+            assert_eq!(&initial_file_buf, &archive_buf);
+            // Test image index
+            let Some(archive_buf) = reader.get_image_by_index_unordered(index)? else {
+                return Err(anyhow!("There should be something at this index {index}"));
+            };
+            assert_eq!(&initial_file_buf, &archive_buf);
+        }
+        Ok(())
+    }
+    #[test]
+    fn test_ordered_2_read() -> anyhow::Result<()> {
+        let mut reader = CbzReader::from_path("test-data/archives/ordered-2.cbz")?;
+        let images = reader.images();
+        assert_eq!(&images, &ordered_2_images());
+        for (index, image_name) in images.iter().enumerate() {
+            let initial_file_buf = {
+                let mut buf = Vec::<u8>::new();
+                let mut reader = BufReader::new(File::open(format!(
+                    "test-data/images/ordered-2/{image_name}"
                 ))?);
                 io::copy(&mut reader, &mut buf)?;
                 buf

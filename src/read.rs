@@ -32,6 +32,10 @@ pub trait ComicBookReader {
         };
         Ok(Some(self.get_image_by_path(image_path)?))
     }
+
+    /// Get image by its index
+    ///
+    /// This one uses [`Self::images_unordered`] by default.
     fn get_image_by_index_unordered(
         &mut self,
         index: usize,
