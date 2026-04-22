@@ -3,11 +3,11 @@ mod cbz;
 /// Abstraction trait for writing comic book files
 pub trait ComicBookReader {
     type Error;
-    /// Get the list of images as it is ordered from the archive
+    /// Get the list of images path as it is ordered from the archive
     fn images_unordered(&self) -> Vec<String>;
     /// Get list of images paths
     ///
-    /// This should be ordered alphabe
+    /// This should return a [`Vec<String>`] of alphabetically (case insensitive) ordered of images path
     fn images(&self) -> Vec<String> {
         let mut images = self.images_unordered();
         images.sort_by_key(|s| s.to_lowercase());
