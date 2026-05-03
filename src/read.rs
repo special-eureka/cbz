@@ -1,4 +1,4 @@
-mod cbz;
+pub mod cbz;
 
 /// Abstraction trait for writing comic book files
 pub trait ComicBookReader {
@@ -48,5 +48,3 @@ pub trait ComicBookReader {
     }
     // TODO comic info support
 }
-
-pub use cbz::CbzReader;
