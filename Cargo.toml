@@ -4,16 +4,25 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-derive_builder = "0.20"
-image = "0.25"
-log = "0.4"
-serde = { version = "1.0", features = ["derive"] }
-serde-xml-rs = "0.8"
-sevenz-rust2 = "0.20"
-tar = "0.4"
-thiserror = "2.0"
-zip = "8"
+# derive_builder = "0.20"
+image = {version = "0.25", default-features = false}
+log = {version = "0.4", optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde-xml-rs = {version = "0.8", optional = true}
+sevenz-rust2 = { version = "0.20", optional = true}
+tar = {version = "0.4", optional = true}
+thiserror = {version = "2.0", optional = true}
+zip = {version = "8", optional = true}
+
+[features]
+default = ["cbz"]
+cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip"]
+cbt = ["dep:tar"]
+cb7z = ["dep:sevenz-rust2"]
+log = ["dep:log"]
+comic_info = ["dep:serde", "dep:serde-xml-rs"]
 
 [dev-dependencies]
 anyhow = "1.0"
 clap = { version = "4", features = ["derive"] }
+image = { version = "0.25", default-features = true }
