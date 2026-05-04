@@ -1,3 +1,5 @@
+#[cfg(feature = "cbz")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cbz")))]
 pub mod cbz;
 
 use std::{io::Read, path::Path};

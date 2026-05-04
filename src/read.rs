@@ -1,3 +1,5 @@
+#[cfg(feature = "cbz")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cbz")))]
 pub mod cbz;
 
 /// Abstraction trait for writing comic book files

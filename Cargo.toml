@@ -26,3 +26,6 @@ comic_info = ["dep:serde", "dep:serde-xml-rs"]
 anyhow = "1.0"
 clap = { version = "4", features = ["derive"] }
 image = { version = "0.25", default-features = true }
+
+[package.metadata.docs.rs]
+all-features = true
