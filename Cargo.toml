@@ -16,7 +16,7 @@ zip = {version = "8", optional = true}
 
 [features]
 default = ["cbz"]
-cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip"]
+cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip", "image/gif"]
 cbt = ["dep:tar"]
 cb7z = ["dep:sevenz-rust2"]
 log = ["dep:log"]
