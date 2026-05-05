@@ -46,6 +46,14 @@ impl<R> CbzReader<R> {
     pub fn from_zip_reader(zip: ZipArchive<R>) -> Self {
         Self { inner_zip: zip }
     }
+    pub fn from_reader(reader: R) -> ZipResult<Self>
+    where
+        R: Read + Seek,
+    {
+        Ok(Self {
+            inner_zip: ZipArchive::new(reader)?,
+        })
+    }
 }
 
 impl CbzReader<BufReader<File>> {

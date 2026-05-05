@@ -52,7 +52,7 @@ where
     pub fn new(writer: W) -> Self {
         Self {
             zip_inner: ZipWriter::new(writer),
-            count: 0,
+            count: 1,
             suffix: None,
             width: 4,
             images_format: Default::default(),
@@ -145,6 +145,57 @@ where
             .start_file_from_path(path, FileOptions::DEFAULT)?;
         io::copy(&mut file, &mut self.zip_inner)?;
         self.zip_inner.flush()?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{
+        fs::read_dir,
+        io::{self, BufReader, BufWriter, Seek, Write},
+        num::NonZero,
+        path::Path,
+    };
+
+    use crate::{
+        read::{ComicBookReader, cbz::CbzReader},
+        write::ComicBookWriter,
+    };
+
+    use super::CbzWriter;
+    #[test]
+    fn test_write() -> anyhow::Result<()> {
+        let to_import = read_dir("test-data/images/no-order")?.collect::<io::Result<Vec<_>>>()?;
+
+        let mut file_to_use = tempfile::tempfile()?;
+
+        {
+            let mut writer = CbzWriter::new(BufWriter::new(&mut file_to_use))
+                .width(NonZero::new(4).ok_or(anyhow::anyhow!("Unreachable"))?);
+            for img in &to_import {
+                writer.add_image(image::open(img.path())?)?;
+            }
+            writer.finish()?.flush()?;
+        }
+
+        file_to_use.rewind()?;
+
+        {
+            let reader = CbzReader::from_reader(BufReader::new(&mut file_to_use))?;
+            let images = reader.images();
+            assert_eq!(images.len(), to_import.len());
+            for (index, image) in images.into_iter().enumerate() {
+                assert_eq!(
+                    format!("{:0>4}", index + 1).as_str(),
+                    Path::new(&image)
+                        .file_prefix()
+                        .and_then(|d| d.to_str())
+                        .ok_or(anyhow::anyhow!("No filename"))?
+                );
+            }
+        }
+
         Ok(())
     }
 }
