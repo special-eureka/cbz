@@ -37,6 +37,17 @@ pub struct CbzReader<R> {
     inner_zip: ZipArchive<R>,
 }
 
+#[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
+#[error(transparent)]
+pub enum CbzReaderError {
+    Zip(#[from] zip::result::ZipError),
+    Io(#[from] io::Error),
+    #[cfg(feature = "comicinfo")]
+    #[cfg_attr(docsrs, doc(feature = "comicinfo"))]
+    Xml(#[from] serde_xml_rs::Error),
+}
+
 impl<R> CbzReader<R> {
     /// Get the underlying [`zip::read::ZipArchive`]
     pub fn into_inner(self) -> ZipArchive<R> {
@@ -83,7 +94,7 @@ impl<R> ComicBookReader for CbzReader<R>
 where
     R: Read + Seek,
 {
-    type Error = zip::result::ZipError;
+    type Error = CbzReaderError;
     fn images_unordered(&self) -> Vec<String> {
         let mut images = self
             .inner_zip
