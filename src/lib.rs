@@ -1,3 +1,6 @@
+#[cfg(feature = "comicinfo")]
+#[cfg_attr(docsrs, doc(feature = "comicinfo"))]
+pub mod comicinfo;
 pub mod read;
 #[cfg(test)]
 pub(crate) mod test_utils;
