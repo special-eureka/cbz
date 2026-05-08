@@ -8,4 +8,5 @@
 //! Only [`v2`](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd) is supported.
 //!
 pub mod manga;
+pub mod rating;
 pub mod yes_no;

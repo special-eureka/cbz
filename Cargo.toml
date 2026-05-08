@@ -21,7 +21,7 @@ cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip", "image/gif"]
 cbt = ["dep:tar"]
 cb7z = ["dep:sevenz-rust2"]
 log = ["dep:log"]
-comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display"]
+comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display", "dep:thiserror", "derive_more/deref", "derive_more/into"]
 
 [dev-dependencies]
 anyhow = "1.0"
