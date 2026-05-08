@@ -1,3 +1,5 @@
+//! `Yes` and `No` Enum
+
 use derive_more::{Display, FromStr};
 use serde::{Deserialize, Serialize};
 
