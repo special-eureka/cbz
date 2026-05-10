@@ -1,22 +1,11 @@
 //! [`Manga` enum](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd#L55-L62)
 //!
-use derive_more::{Display, FromStr};
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 
 /// [Ref](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd#L55-L62)
 #[derive(
-    Debug,
-    Clone,
-    Copy,
-    Deserialize,
-    Serialize,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Hash,
-    Display,
-    FromStr,
+    Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash, Display,
 )]
 pub enum Manga {
     Yes,
@@ -24,6 +13,17 @@ pub enum Manga {
     No,
     #[serde(other)]
     Unknown,
+}
+
+impl From<&str> for Manga {
+    fn from(value: &str) -> Self {
+        match value {
+            "Yes" => Self::Yes,
+            "YesAndRightToLeft" => Self::YesAndRightToLeft,
+            "No" => Self::No,
+            _ => Self::Unknown,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -44,13 +44,10 @@ mod tests {
     }
     #[test]
     fn manga_from_str() -> anyhow::Result<()> {
-        assert_eq!("Yes".parse::<Manga>()?, Manga::Yes);
-        assert_eq!("No".parse::<Manga>()?, Manga::No);
-        assert_eq!(
-            "YesAndRightToLeft".parse::<Manga>()?,
-            Manga::YesAndRightToLeft
-        );
-        assert_eq!("unknown".parse::<Manga>()?, Manga::Unknown);
+        assert_eq!(Manga::Yes, "Yes".into());
+        assert_eq!(Manga::No, "No".into());
+        assert_eq!(Manga::YesAndRightToLeft, "YesAndRightToLeft".into());
+        assert_eq!(Manga::Unknown, "unknown".into());
         Ok(())
     }
     #[test]
