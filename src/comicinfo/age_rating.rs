@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 macro_rules! age_rating_enum {
     ($($key:ident => $value:literal,)*) => {
         #[derive(Debug, Clone, Copy, Default, Display, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
+        /// [`Age Rating` enum](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd#L70-L88)
+        ///
         pub enum AgeRating {
             $(
                 #[serde(rename = $value)]
