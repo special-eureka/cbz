@@ -1,29 +1,28 @@
 //! `Yes` and `No` Enum
 
-use derive_more::{Display, FromStr};
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 
 /// Yes No Enum
 /// [Ref](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd#L48)
 #[derive(
-    Debug,
-    Clone,
-    Copy,
-    Deserialize,
-    Serialize,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Hash,
-    Display,
-    FromStr,
+    Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash, Display,
 )]
 pub enum YesNo {
     Yes,
     No,
     #[serde(other)]
     Unknown,
+}
+
+impl From<&str> for YesNo {
+    fn from(value: &str) -> Self {
+        match value {
+            "Yes" => Self::Yes,
+            "No" => Self::No,
+            _ => Self::Unknown,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -39,9 +38,9 @@ mod tests {
     }
     #[test]
     fn yes_no_from_str() -> anyhow::Result<()> {
-        assert_eq!("Yes".parse::<YesNo>()?, YesNo::Yes);
-        assert_eq!("No".parse::<YesNo>()?, YesNo::No);
-        assert_eq!("unknown".parse::<YesNo>()?, YesNo::Unknown);
+        assert_eq!(YesNo::Yes, "Yes".into());
+        assert_eq!(YesNo::No, "No".into());
+        assert_eq!(YesNo::Unknown, "unknown".into());
         Ok(())
     }
     #[test]
