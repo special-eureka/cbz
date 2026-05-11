@@ -23,16 +23,23 @@ use serde::{Deserialize, Serialize};
 ///
 pub enum ComicPageType {
     FrontCover,
+    /// sometimes found inside the book as a second cover
     InnerCover,
+    /// summary of previous issues
     Roundup,
     #[default]
     Story,
     Advertisement,
     Editorial,
+    /// fan letters
     Letters,
+    /// sneak preview of the next book, or another comic
     Preview,
     BackCover,
+    /// for anything not covered above
     Other,
+    /// indicate that the page should not be shown by readers
+    #[serde(alias = "Delete")]
     Deleted,
 }
 
