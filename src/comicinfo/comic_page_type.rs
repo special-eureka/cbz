@@ -1,5 +1,6 @@
 //! [`ComicPageType` enum](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd#L106-L120)
 //!
+mod list;
 use derive_more::{Display, FromStr};
 use serde::{Deserialize, Serialize};
 
