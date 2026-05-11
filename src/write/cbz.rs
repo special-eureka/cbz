@@ -21,6 +21,8 @@ pub enum CbzWriterImageFormat {
     #[default]
     Png,
     Jpeg,
+    // TODO Avif
+    // TODO Webp
 }
 
 impl From<CbzWriterImageFormat> for image::ImageFormat {
