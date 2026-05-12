@@ -14,6 +14,7 @@ tar = {version = "0.4", optional = true}
 thiserror = {version = "2.0", optional = true}
 zip = {version = "8", optional = true}
 derive_more = {version = "2", optional = true}
+url = {version = "2", optional = true}
 
 [features]
 default = ["cbz", "comicinfo"]
@@ -21,7 +22,7 @@ cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip", "image/gif"]
 cbt = ["dep:tar"]
 cb7z = ["dep:sevenz-rust2"]
 log = ["dep:log"]
-comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display", "dep:thiserror", "derive_more/deref", "derive_more/into", "dep:derive_builder"]
+comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display", "dep:thiserror", "derive_more/deref", "derive_more/into", "dep:derive_builder", "url/serde"]
 
 [dev-dependencies]
 anyhow = "1.0"
