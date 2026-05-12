@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# derive_builder = "0.20"
+derive_builder = {version = "0.20", optional = true}
 image = {version = "0.25", default-features = false}
 log = {version = "0.4", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
@@ -21,7 +21,7 @@ cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip", "image/gif"]
 cbt = ["dep:tar"]
 cb7z = ["dep:sevenz-rust2"]
 log = ["dep:log"]
-comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display", "dep:thiserror", "derive_more/deref", "derive_more/into"]
+comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display", "dep:thiserror", "derive_more/deref", "derive_more/into", "dep:derive_builder"]
 
 [dev-dependencies]
 anyhow = "1.0"
