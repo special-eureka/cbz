@@ -6,11 +6,23 @@ use serde::{Deserialize, Serialize};
 /// Yes No Enum
 /// [Ref](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd#L48)
 #[derive(
-    Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash, Display,
+    Debug,
+    Clone,
+    Copy,
+    Deserialize,
+    Serialize,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    Display,
+    Default,
 )]
 pub enum YesNo {
     Yes,
     No,
+    #[default]
     #[serde(other)]
     Unknown,
 }
