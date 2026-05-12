@@ -18,7 +18,7 @@ pub struct ComicPageInfo {
     pub image: usize,
     /// Type of the page
     #[serde(rename = "@Type", default = "default_types")]
-    #[builder(default = "default_types()")]
+    #[builder(default = "default_types()", setter(each = "add_type"))]
     pub type_: Vec<ComicPageType>,
     /// Whether the page is a double spread.
     #[serde(rename = "@DoublePage", default)]
@@ -88,7 +88,8 @@ mod tests {
     fn test_deser() -> anyhow::Result<()> {
         let res = ComicPageInfo::builder()
             .image(1)
-            .type_(vec![ComicPageType::Story, ComicPageType::Other])
+            .add_type(ComicPageType::Story)
+            .add_type(ComicPageType::Other)
             .build()?;
         assert_eq!(
             res,
