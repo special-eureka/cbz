@@ -5,12 +5,24 @@ use serde::{Deserialize, Serialize};
 
 /// [Ref](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd#L55-L62)
 #[derive(
-    Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash, Display,
+    Debug,
+    Clone,
+    Copy,
+    Deserialize,
+    Serialize,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    Display,
+    Default,
 )]
 pub enum Manga {
     Yes,
     YesAndRightToLeft,
     No,
+    #[default]
     #[serde(other)]
     Unknown,
 }
