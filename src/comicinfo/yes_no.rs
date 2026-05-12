@@ -1,4 +1,4 @@
-//! `Yes` and `No` Enum
+//! [`Yes` and `No` Enum](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd#L48-L53)
 
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
