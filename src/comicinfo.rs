@@ -96,7 +96,6 @@ pub struct ComicInfo {
     pub genre: Option<String>,
     /// Tags of the book or series. For example, _ninja_ or _school life_.
     pub tags: Option<String>,
-    // TODO this should be an [`url::Url`] but versatility i guess.
     /// A URL pointing to a reference website for the book.
     ///
     /// It is accepted that multiple values are space separated.
@@ -142,18 +141,18 @@ pub struct ComicInfo {
     ///
     /// For example, for [Undiscovered Country](https://comicvine.gamespot.com/undiscovered-country/4050-122630/), issues 1-6 are part of the _Destiny_ story arc, issues 7-12 are part of the _Unity_ story arc.
     pub story_arc: Option<String>,
-    /// While [`StoryArc`](story-arc) was originally designed to store the arc _within a series_,
+    /// While [`StoryArc`][story-arc] was originally designed to store the arc _within a series_,
     /// it was often used to indicate that a book was part of a reading order,
     /// composed of books from multiple series.
     /// Mylar for instance was using the field as such.
     ///
-    /// Since [`StoryArc`](story-arc) itself wasn't able to carry the information about ordering of books within a reading order,
-    /// [`StoryArcNumber`](story-arc-number) was added.
+    /// Since [`StoryArc`][story-arc] itself wasn't able to carry the information about ordering of books within a reading order,
+    /// [`StoryArcNumber`][story-arc-number] was added.
     ///
-    /// [`StoryArc`](story-arc) and [`StoryArcNumber`](story-arc-number) can work in combination,
+    /// [`StoryArc`][story-arc] and [`StoryArcNumber`][story-arc-number] can work in combination,
     /// to indicate in which position the book is located at for a specific reading order.
     ///
-    /// It is accepted that multiple values can be specified for both [`StoryArc`](story-arc) and [`StoryArcNumber`](story-arc-number).
+    /// It is accepted that multiple values can be specified for both [`StoryArc`][story-arc] and [`StoryArcNumber`][story-arc-number].
     /// Multiple values are comma separated.
     ///
     /// [story-arc]: Self::story_arc
