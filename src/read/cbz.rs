@@ -8,7 +8,7 @@ use zip::{
     read::{
         ZipArchive,
         // ZipFile,
-        ZipFile
+        ZipFile,
     },
     result::ZipResult,
 };
@@ -66,7 +66,6 @@ impl<R> CbzReader<R> {
             inner_zip: ZipArchive::new(reader)?,
         })
     }
-    pub fn get_zip_file(&mut self,)
 }
 
 impl CbzReader<BufReader<File>> {
@@ -91,6 +90,18 @@ impl CbzReader<BufReader<File>> {
 //         }
 //     }
 // }
+
+impl<R> CbzReader<R>
+where
+    R: Read + Seek,
+{
+    pub fn get_zip_file<P>(&mut self, path: P) -> ZipResult<ZipFile<'_, R>>
+    where
+        P: AsRef<Path>,
+    {
+        self.inner_zip.by_path(path)
+    }
+}
 
 impl<R> ComicBookReader for CbzReader<R>
 where
