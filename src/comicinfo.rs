@@ -28,7 +28,7 @@ pub mod yes_no;
 ///
 #[derive(Debug, Builder, Clone, PartialEq, Serialize, Deserialize, Default)]
 #[non_exhaustive]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "PascalCase", default)]
 #[builder(setter(strip_option), default)]
 pub struct ComicInfo {
     #[serde(rename = "@xmlns:xsi")]
@@ -201,6 +201,8 @@ fn default_xsd() -> Option<String> {
 }
 
 mod serde_from_to_str_enum {
+    use std::borrow::{Borrow, Cow};
+
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
     pub fn serialize<V, S>(value: &Option<V>, serializer: S) -> Result<S::Ok, S::Error>
@@ -213,10 +215,16 @@ mod serde_from_to_str_enum {
     pub fn deserialize<'de, V, D>(deserializer: D) -> Result<Option<V>, D::Error>
     where
         D: Deserializer<'de>,
-        V: From<&'de str>,
+        V: for<'a> From<&'a str>,
     {
-        let str_: &'de str = Deserialize::<'de>::deserialize(deserializer)?;
-        Ok(Some(str_.into()))
+        let str_: Option<Cow<'de, str>> = Deserialize::<'de>::deserialize(deserializer)?;
+        match str_ {
+            Some(str_) => {
+                let inner_str = Borrow::<str>::borrow(&str_);
+                Ok(Some(inner_str.into()))
+            }
+            None => Ok(None),
+        }
     }
 }
 
@@ -250,6 +258,8 @@ mod serde_pages {
 }
 #[cfg(test)]
 mod tests {
+    use std::{fs::File, io::BufReader, num::NonZeroUsize};
+
     use super::*;
 
     #[test]
@@ -269,6 +279,22 @@ mod tests {
         Ok(())
     }
     #[test]
+    fn test_age_rating() -> anyhow::Result<()> {
+        let val = ComicInfoBuilder::create_empty()
+            .age_rating(AgeRating::Teen)
+            .build()?;
+        let val_xml = serde_xml_rs::to_string(&val)?;
+        assert_eq!(
+            val_xml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", ""),
+            format!(
+                "<ComicInfo xmlns:xsi=\"{}\" xmlns:xsd=\"{}\"><AgeRating>Teen</AgeRating></ComicInfo>",
+                default_xsi().unwrap(),
+                default_xsd().unwrap()
+            )
+        );
+        Ok(())
+    }
+    #[test]
     fn test_pages() -> anyhow::Result<()> {
         let val = ComicInfoBuilder::create_empty()
             .add_page(ComicPageInfo::builder().image(1).build()?)
@@ -281,6 +307,55 @@ mod tests {
                 default_xsi().unwrap(),
                 default_xsd().unwrap()
             )
+        );
+        Ok(())
+    }
+    #[test]
+    fn test_deserialize() -> anyhow::Result<()> {
+        let xml_val: ComicInfo = {
+            let mut file = BufReader::new(File::open("test-data/xml/TestComicInfo1.xml")?);
+            serde_xml_rs::from_reader(&mut file)?
+        };
+
+        assert!(xml_val.title.is_none());
+        assert_eq!(
+            xml_val.series.unwrap().trim(),
+            "Nonderi Kubo wa Genjitsu no Koi ga Shiritai"
+        );
+        assert_eq!(xml_val.number.unwrap().trim(), "1");
+        assert_eq!(
+            xml_val.summary.unwrap().trim(),
+            "Kubo-kun tries to learn about romance for the sake of writing light novels, but he turns out to be the most tactless and clueless person ever!?"
+        );
+        assert_eq!(xml_val.language_iso.unwrap().trim(), "en");
+        assert_eq!(xml_val.age_rating.unwrap(), AgeRating::Teen);
+        assert!(xml_val.alternate_count.is_none());
+
+        assert_eq!(xml_val.pages.len(), 3);
+        assert_eq!(
+            xml_val.pages[0],
+            ComicPageInfo::builder()
+                .image(1)
+                .image_width(NonZeroUsize::new(800))
+                .image_height(NonZeroUsize::new(1300))
+                .build()?
+        );
+        assert_eq!(
+            xml_val.pages[1],
+            ComicPageInfo::builder()
+                .image(2)
+                .double_page(true)
+                .image_width(NonZeroUsize::new(1600))
+                .image_height(NonZeroUsize::new(900))
+                .build()?
+        );
+        assert_eq!(
+            xml_val.pages[2],
+            ComicPageInfo::builder()
+                .image(3)
+                .image_width(NonZeroUsize::new(800))
+                .image_height(NonZeroUsize::new(1300))
+                .build()?
         );
         Ok(())
     }

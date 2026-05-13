@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ComicInfo
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+    <Series>Nonderi Kubo wa Genjitsu no Koi ga Shiritai</Series>
+    <Number>1</Number>
+    <Summary
+    >Kubo-kun tries to learn about romance for the sake of writing light novels, but he turns out to be the most tactless and clueless person ever!?</Summary>
+    <LanguageISO>en</LanguageISO>
+    <AgeRating>Teen</AgeRating>
+    <Pages>
+        <Page Image="1" ImageWidth="800" ImageHeight="1300" />
+        <Page Image="2" ImageWidth="1600" ImageHeight="900" DoublePage="true" />
+        <Page Image="3" ImageWidth="800" ImageHeight="1300" />
+    </Pages>
+</ComicInfo>
