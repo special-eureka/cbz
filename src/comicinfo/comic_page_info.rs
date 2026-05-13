@@ -4,7 +4,7 @@
 use std::num::NonZeroUsize;
 
 use derive_builder::Builder;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::comicinfo::comic_page_type::ComicPageType;
 
@@ -37,13 +37,29 @@ pub struct ComicPageInfo {
     #[builder(default)]
     pub bookmark: String,
     /// Width of the image in pixels.
-    #[serde(rename = "@ImageWidth", default)]
+    #[serde(
+        rename = "@ImageWidth",
+        default,
+        deserialize_with = "deser_non_zero_usize"
+    )]
     #[builder(default)]
     pub image_width: Option<NonZeroUsize>,
     /// Height of the image in pixels.
-    #[serde(rename = "@ImageHeight", default)]
+    #[serde(
+        rename = "@ImageHeight",
+        default,
+        deserialize_with = "deser_non_zero_usize"
+    )]
     #[builder(default)]
     pub image_height: Option<NonZeroUsize>,
+}
+
+fn deser_non_zero_usize<'de, D>(deserializer: D) -> Result<Option<NonZeroUsize>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let number: Option<usize> = Deserialize::deserialize(deserializer)?;
+    Ok(number.and_then(NonZeroUsize::new))
 }
 
 impl ComicPageInfo {
@@ -106,6 +122,21 @@ mod tests {
             res,
             serde_xml_rs::from_str(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ComicPageInfo Image=\"1\" />"
+            )?
+        );
+        Ok(())
+    }
+    #[test]
+    fn test_deser_wh_not_set() -> anyhow::Result<()> {
+        let res = ComicPageInfo::builder()
+            .image(1)
+            .add_type(ComicPageType::Story)
+            .add_type(ComicPageType::Other)
+            .build()?;
+        assert_eq!(
+            res,
+            serde_xml_rs::from_str(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ComicPageInfo Image=\"1\" Type=\"Story Other\" DoublePage=\"false\" ImageSize=\"0\" Key=\"\" Bookmark=\"\" ImageWidth=\"0\" ImageHeight=\"0\" />"
             )?
         );
         Ok(())
