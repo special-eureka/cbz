@@ -22,6 +22,8 @@ pub mod manga;
 pub mod rating;
 pub mod yes_no;
 
+pub const COMIC_INFO_XML: &str = "ComicInfo.xml";
+
 /// [`ComicInfo` complex type](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/drafts/v2.1/ComicInfo.xsd#L4-L51)
 ///
 /// It is worth noting that this type uses the [`v2.1`](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/drafts/v2.1/ComicInfo.xsd#L4-L51) draft schema.
@@ -29,7 +31,7 @@ pub mod yes_no;
 #[derive(Debug, Builder, Clone, PartialEq, Serialize, Deserialize, Default)]
 #[non_exhaustive]
 #[serde(rename_all = "PascalCase", default)]
-#[builder(setter(strip_option), default)]
+#[builder(setter(strip_option), default, derive(Debug))]
 pub struct ComicInfo {
     #[serde(rename = "@xmlns:xsi")]
     #[builder(default = "default_xsi()", setter(skip))]
