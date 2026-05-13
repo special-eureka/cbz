@@ -7,7 +7,8 @@ use std::{
 use zip::{
     read::{
         ZipArchive,
-        // ZipFile
+        // ZipFile,
+        ZipFile
     },
     result::ZipResult,
 };
@@ -65,6 +66,7 @@ impl<R> CbzReader<R> {
             inner_zip: ZipArchive::new(reader)?,
         })
     }
+    pub fn get_zip_file(&mut self,)
 }
 
 impl CbzReader<BufReader<File>> {
