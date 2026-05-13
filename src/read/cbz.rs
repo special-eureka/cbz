@@ -108,7 +108,7 @@ where
     R: Read + Seek,
 {
     type Error = CbzReaderError;
-    fn images_unordered(&self) -> Vec<String> {
+    fn pages_unordered(&self) -> Vec<String> {
         let mut images = self
             .inner_zip
             .file_names()
@@ -154,7 +154,7 @@ mod tests {
     #[test]
     fn test_ordered_read() -> anyhow::Result<()> {
         let mut reader = CbzReader::from_path("test-data/archives/archived-ordered.cbz")?;
-        let images = reader.images();
+        let images = reader.pages();
         assert_eq!(&images, &ordered_images());
         for (index, image_name) in images.iter().enumerate() {
             let initial_file_buf = {
@@ -166,10 +166,10 @@ mod tests {
                 buf
             };
             // Test images path
-            let archive_buf = reader.get_image_by_path(image_name)?;
+            let archive_buf = reader.get_page_by_path(image_name)?;
             assert_eq!(&initial_file_buf, &archive_buf);
             // Test image index
-            let Some(archive_buf) = reader.get_image_by_index(index)? else {
+            let Some(archive_buf) = reader.get_page_by_index(index)? else {
                 return Err(anyhow!("There should be something at this index {index}"));
             };
             assert_eq!(&initial_file_buf, &archive_buf);
@@ -180,7 +180,7 @@ mod tests {
     fn test_ordered_read_with_metadata() -> anyhow::Result<()> {
         let mut reader =
             CbzReader::from_path("test-data/archives/archived-ordered-with-metadata.cbz")?;
-        let images = reader.images();
+        let images = reader.pages();
         assert_eq!(&images, &ordered_images());
         for (index, image_name) in images.iter().enumerate() {
             let initial_file_buf = {
@@ -192,10 +192,10 @@ mod tests {
                 buf
             };
             // Test images path
-            let archive_buf = reader.get_image_by_path(image_name)?;
+            let archive_buf = reader.get_page_by_path(image_name)?;
             assert_eq!(&initial_file_buf, &archive_buf);
             // Test image index
-            let Some(archive_buf) = reader.get_image_by_index(index)? else {
+            let Some(archive_buf) = reader.get_page_by_index(index)? else {
                 return Err(anyhow!("There should be something at this index {index}"));
             };
             assert_eq!(&initial_file_buf, &archive_buf);
@@ -207,7 +207,7 @@ mod tests {
     #[test]
     fn test_no_order_read() -> anyhow::Result<()> {
         let mut reader = CbzReader::from_path("test-data/archives/md-test.cbz")?;
-        let images = reader.images_unordered();
+        let images = reader.pages_unordered();
         assert_eq!(&images, &no_order_images());
         for (index, image_name) in images.iter().enumerate() {
             let initial_file_buf = {
@@ -219,10 +219,10 @@ mod tests {
                 buf
             };
             // Test images path
-            let archive_buf = reader.get_image_by_path(image_name)?;
+            let archive_buf = reader.get_page_by_path(image_name)?;
             assert_eq!(&initial_file_buf, &archive_buf);
             // Test image index
-            let Some(archive_buf) = reader.get_image_by_index_unordered(index)? else {
+            let Some(archive_buf) = reader.get_page_by_index_unordered(index)? else {
                 return Err(anyhow!("There should be something at this index {index}"));
             };
             assert_eq!(&initial_file_buf, &archive_buf);
@@ -232,7 +232,7 @@ mod tests {
     #[test]
     fn test_ordered_2_read() -> anyhow::Result<()> {
         let mut reader = CbzReader::from_path("test-data/archives/ordered-2.cbz")?;
-        let images = reader.images();
+        let images = reader.pages();
         assert_eq!(&images, &ordered_2_images());
         for (index, image_name) in images.iter().enumerate() {
             let initial_file_buf = {
@@ -244,10 +244,10 @@ mod tests {
                 buf
             };
             // Test images path
-            let archive_buf = reader.get_image_by_path(image_name)?;
+            let archive_buf = reader.get_page_by_path(image_name)?;
             assert_eq!(&initial_file_buf, &archive_buf);
             // Test image index
-            let Some(archive_buf) = reader.get_image_by_index(index)? else {
+            let Some(archive_buf) = reader.get_page_by_index(index)? else {
                 return Err(anyhow!("There should be something at this index {index}"));
             };
             assert_eq!(&initial_file_buf, &archive_buf);
