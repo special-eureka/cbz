@@ -2,6 +2,10 @@
 #[cfg_attr(docsrs, doc(cfg(feature = "cbz")))]
 pub mod cbz;
 
+#[cfg(feature = "comicinfo")]
+#[cfg_attr(docsrs, doc(cfg(feature = "comicinfo")))]
+pub mod comicinfo;
+
 /// Abstraction trait for writing comic book files
 pub trait ComicBookReader {
     type Error;
@@ -48,5 +52,4 @@ pub trait ComicBookReader {
         };
         Ok(Some(self.get_image_by_path(image_path)?))
     }
-    // TODO comic info support
 }
