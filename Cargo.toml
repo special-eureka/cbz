@@ -17,7 +17,7 @@ derive_more = {version = "2", optional = true}
 url = {version = "2", optional = true}
 
 [features]
-default = ["cbz", "comicinfo"]
+default = ["cbt"]
 cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip", "image/gif"]
 cbt = ["dep:tar"]
 cb7z = ["dep:sevenz-rust2"]
