@@ -180,6 +180,12 @@ where
         let _ = self.take_comicinfo_builder();
         self
     }
+    /// Get the current comicinfo builder
+    #[cfg(feature = "comicinfo")]
+    #[cfg_attr(docsrs, doc(feature = "comicinfo"))]
+    pub fn get_comicinfo_builder(&mut self) -> Option<&ComicInfoBuilder> {
+        self.comicinfo_builder.as_ref()
+    }
     #[cfg(feature = "comicinfo")]
     fn get_current_page_info_builder(&self) -> ComicPageInfoBuilder {
         let mut builder = ComicPageInfoBuilder::default();
