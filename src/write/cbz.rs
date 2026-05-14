@@ -55,6 +55,11 @@ impl From<CbzWriterImageFormat> for image::ImageFormat {
     }
 }
 
+/// A generic cbz writer
+///
+/// Please look up to [`ComicBookWriter`] if you want more information on how to add pages.
+///
+/// Mostly a wrapper around [`zip::write::ZipWriter`]
 #[derive(Debug)]
 pub struct CbzWriter<W>
 where
