@@ -8,8 +8,11 @@
 //! Only [`v2`](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd) and [`v2.1`](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/drafts/v2.1/ComicInfo.xsd) are supported.
 //!
 
+use std::io;
+
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
+use serde_xml_rs::SerdeXml;
 
 use crate::comicinfo::{
     age_rating::AgeRating, comic_page_info::ComicPageInfo, manga::Manga, rating::Rating,
@@ -33,12 +36,6 @@ pub const COMIC_INFO_XML: &str = "ComicInfo.xml";
 #[serde(rename_all = "PascalCase", default)]
 #[builder(setter(strip_option), default, derive(Debug))]
 pub struct ComicInfo {
-    #[serde(rename = "@xmlns:xsi")]
-    #[builder(default = "default_xsi()", setter(skip))]
-    xsi: Option<String>,
-    #[serde(rename = "@xmlns:xsd")]
-    #[builder(default = "default_xsd()", setter(skip))]
-    xsd: Option<String>,
     /// Title of the book.
     pub title: Option<String>,
     /// Title of the series the book is part of.
@@ -185,21 +182,44 @@ pub struct ComicInfo {
 }
 
 impl ComicInfo {
-    /// Get the the xmlns
-    pub fn xmlns_xsi(&self) -> Option<&str> {
-        self.xsi.as_deref()
+    /// A equivalent of [`serde_xml_rs::to_string`] but uses [`get_comicinfo_serde_xml`] instead.
+    ///
+    /// You might need this
+    /// if you want to set the `xmlns:xsi` and `xmlns:xsd` on your `<ComicInfo/>` attributes
+    ///
+    /// _Since `xmlns:` cannot be deserialized properly_
+    pub fn to_xml_string(&self) -> Result<String, serde_xml_rs::Error> {
+        get_comicinfo_serde_xml().to_string(self)
     }
-    pub fn xmlns_xsd(&self) -> Option<&str> {
-        self.xsd.as_deref()
+    /// A equivalent of [`serde_xml_rs::to_writer`] but uses [`get_comicinfo_serde_xml`] instead.
+    ///
+    /// You might need this
+    /// if you want to set the `xmlns:xsi` and `xmlns:xsd` on your `<ComicInfo/>` attributes
+    ///
+    /// _Since `xmlns:` cannot be deserialized properly_
+    pub fn to_xml_writer<W>(&self, writer: W) -> Result<(), serde_xml_rs::Error>
+    where
+        W: io::Write,
+    {
+        get_comicinfo_serde_xml().to_writer(writer, self)
     }
 }
 
-fn default_xsi() -> Option<String> {
-    Some("http://www.w3.org/2001/XMLSchema-instance".into())
+/// Return the default `xmlns:xsi` attribute value
+pub fn default_xsi() -> &'static str {
+    "http://www.w3.org/2001/XMLSchema-instance"
 }
 
-fn default_xsd() -> Option<String> {
-    Some("http://www.w3.org/2001/XMLSchema".into())
+/// Return the default `x`
+pub fn default_xsd() -> &'static str {
+    "http://www.w3.org/2001/XMLSchema"
+}
+
+/// Get a [`SerdeXml`] value with `xsi` and `xsd` namespace value already set.
+pub fn get_comicinfo_serde_xml() -> SerdeXml {
+    SerdeXml::new()
+        .namespace("xsi", default_xsi())
+        .namespace("xsd", default_xsd())
 }
 
 mod serde_from_to_str_enum {
@@ -269,13 +289,13 @@ mod tests {
         let val = ComicInfoBuilder::create_empty()
             .black_and_white(YesNo::Yes)
             .build()?;
-        let val_xml = serde_xml_rs::to_string(&val)?;
+        let val_xml = get_comicinfo_serde_xml().to_string(&val)?;
         assert_eq!(
             val_xml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", ""),
             format!(
-                "<ComicInfo xmlns:xsi=\"{}\" xmlns:xsd=\"{}\"><BlackAndWhite>Yes</BlackAndWhite></ComicInfo>",
-                default_xsi().unwrap(),
-                default_xsd().unwrap()
+                "<ComicInfo xmlns:xsd=\"{}\" xmlns:xsi=\"{}\"><BlackAndWhite>Yes</BlackAndWhite></ComicInfo>",
+                default_xsd(),
+                default_xsi()
             )
         );
         Ok(())
@@ -285,13 +305,13 @@ mod tests {
         let val = ComicInfoBuilder::create_empty()
             .age_rating(AgeRating::Teen)
             .build()?;
-        let val_xml = serde_xml_rs::to_string(&val)?;
+        let val_xml = get_comicinfo_serde_xml().to_string(&val)?;
         assert_eq!(
             val_xml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", ""),
             format!(
-                "<ComicInfo xmlns:xsi=\"{}\" xmlns:xsd=\"{}\"><AgeRating>Teen</AgeRating></ComicInfo>",
-                default_xsi().unwrap(),
-                default_xsd().unwrap()
+                "<ComicInfo xmlns:xsd=\"{}\" xmlns:xsi=\"{}\"><AgeRating>Teen</AgeRating></ComicInfo>",
+                default_xsd(),
+                default_xsi()
             )
         );
         Ok(())
@@ -301,13 +321,13 @@ mod tests {
         let val = ComicInfoBuilder::create_empty()
             .add_page(ComicPageInfo::builder().image(1).build()?)
             .build()?;
-        let val_xml = serde_xml_rs::to_string(&val)?;
+        let val_xml = get_comicinfo_serde_xml().to_string(&val)?;
         assert_eq!(
             val_xml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", ""),
             format!(
-                "<ComicInfo xmlns:xsi=\"{}\" xmlns:xsd=\"{}\"><Pages><Page Image=\"1\" Type=\"Story\" DoublePage=\"false\" ImageSize=\"0\" Key=\"\" Bookmark=\"\" /></Pages></ComicInfo>",
-                default_xsi().unwrap(),
-                default_xsd().unwrap()
+                "<ComicInfo xmlns:xsd=\"{}\" xmlns:xsi=\"{}\"><Pages><Page Image=\"1\" Type=\"Story\" DoublePage=\"false\" ImageSize=\"0\" Key=\"\" Bookmark=\"\" /></Pages></ComicInfo>",
+                default_xsd(),
+                default_xsi()
             )
         );
         Ok(())
