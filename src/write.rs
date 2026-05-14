@@ -6,41 +6,41 @@ use std::{io::Read, path::Path};
 
 pub trait ComicBookWriter {
     type Error;
-    /// Add a page at the Comic book archive
+    /// Add a page at the Comic book archive.
+    ///
+    /// The additional [`image::ImageFormat`] argument is the initial format the image. (Since we can't extract format via [`image::DynamicImage`]).
+    /// There are some edge cases where you might need this. (Like handling GIF images for example)
     ///
     /// If the `comicinfo` feature flag is enabled,
-    /// all writers should normally provide the [`Image`](crate::comicinfo::comic_page_info::image),
-    /// [`ImageWidth`](crate::comicinfo::comic_page_info::image_width),
-    /// [`ImageHeight`](crate::comicinfo::comic_page_info::image_height) attributes on `ComicInfo` `Page` elements.
-    fn add_page(&mut self, image: image::DynamicImage) -> Result<(), Self::Error>;
-    /// Similar to the [`Self::add_image`]
-    /// but take additional [`image::ImageFormat`] as an argument which is the initial format the image. (Since we can't extract format via [`image::DynamicImage`]).
+    /// all writers should normally provide the [`Image`](crate::comicinfo::comic_page_info::ComicPageInfo::image),
+    /// [`ImageWidth`](crate::comicinfo::comic_page_info::ComicPageInfo::image_width),
+    /// [`ImageHeight`](crate::comicinfo::comic_page_info::ComicPageInfo::image_height) attributes on `ComicInfo` `Page` elements.
+    /// The [`DoublePage`](crate::comicinfo::comic_page_info::ComicPageInfo::double_page) attributes depends on writers implementation
     ///
-    /// The default implementation just call [`Self::add_image`] but there are some edge cases where you might need this. (Like handling GIF images for example)
-    fn add_page_with_format(
+    fn add_page(
         &mut self,
         image: image::DynamicImage,
-        _format: image::ImageFormat,
-    ) -> Result<(), Self::Error> {
-        self.add_page(image)
-    }
+        _format: Option<image::ImageFormat>,
+    ) -> Result<(), Self::Error>;
     /// Add an additional file to the archive
+    ///
+    /// You might need if you want
+    ///
     fn add_file<P, R>(&mut self, path: P, file: R) -> Result<(), Self::Error>
     where
         P: AsRef<Path>,
         R: Read;
 
-    /// Similiar to [`Self::add_image_with_format`] but will allow you add
-    ///
+    /// Similiar to [`Self::add_page`] but will allow you to specify some `ComixInfo.xml` page type, and bookmark.
     #[cfg(feature = "comicinfo")]
     #[cfg_attr(docsrs, doc(feature = "comicinfo"))]
-    fn add_page_with_page_type(
+    fn add_page_with_metadata(
         &mut self,
         image: image::DynamicImage,
-        _format: image::ImageFormat,
-        _page_type: crate::comicinfo::comic_page_type::ComicPageType,
-        _doublepage: bool,
+        _format: Option<image::ImageFormat>,
+        _page_type: Vec<crate::comicinfo::comic_page_type::ComicPageType>,
+        _bookmark: Option<String>,
     ) -> Result<(), Self::Error> {
-        self.add_page(image)
+        self.add_page(image, _format)
     }
 }
