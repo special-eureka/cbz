@@ -254,9 +254,4 @@ mod tests {
         }
         Ok(())
     }
-    #[cfg(feature = "comicinfo")]
-    #[test]
-    fn test_with_comic_info() -> anyhow::Result<()> {
-        todo!();
-    }
 }
