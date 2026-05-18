@@ -1,3 +1,6 @@
+#[cfg(feature = "cbt")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cbt")))]
+pub mod cbt;
 #[cfg(feature = "cbz")]
 #[cfg_attr(docsrs, doc(cfg(feature = "cbz")))]
 pub mod cbz;
