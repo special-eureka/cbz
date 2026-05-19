@@ -19,7 +19,7 @@ url = {version = "2", optional = true}
 [features]
 default = ["cbt"]
 cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip", "image/gif"]
-cbt = ["dep:tar", "dep:thiserror", "derive_more/debug"]
+cbt = ["dep:tar", "dep:thiserror", "derive_more/debug", "image/jpeg", "image/png", "image/gif"]
 cb7z = ["dep:sevenz-rust2"]
 log = ["dep:log"]
 comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display", "dep:thiserror", "derive_more/deref", "derive_more/into", "dep:derive_builder", "url/serde"]

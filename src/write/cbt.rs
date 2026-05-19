@@ -4,7 +4,12 @@ use std::{
 };
 
 use image::ImageFormat;
-use tar::Header;
+
+#[cfg(feature = "comicinfo")]
+use crate::comicinfo::{
+    COMIC_INFO_XML, ComicInfoBuilder, ComicInfoBuilderError,
+    comic_page_info::{ComicPageInfoBuilder, ComicPageInfoBuilderError},
+};
 
 use crate::write::ComicBookWriter;
 
@@ -28,7 +33,18 @@ pub enum CbtWriterError {
     IntCast(#[from] std::num::TryFromIntError),
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+/// What kind of tar header to use for files
+///
+/// By default, it is `Gnu`
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum CbtHeaderMode {
+    #[default]
+    Gnu,
+    Old,
+    Ustar,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CbtWriterImageFormat {
     #[default]
     Png,
@@ -46,11 +62,16 @@ impl From<CbtWriterImageFormat> for image::ImageFormat {
     }
 }
 
-/// A generic cbz writer
+/// A generic cbt writer
 ///
 /// Please look up to [`ComicBookWriter`] if you want more information on how to add pages.
 ///
 /// Mostly a wrapper around [`tar::Builder`]
+///
+/// It is also worth noting that this writer heavily use `buffering`,
+/// _because of [`tar::Header::set_size`]_.
+///
+/// It is not recommended to use this if you care **too much** about your program memory consumption.
 #[derive(derive_more::Debug)]
 pub struct CbtWriter<W>
 where
@@ -62,6 +83,7 @@ where
     suffix: Option<String>,
     width: usize,
     images_format: CbtWriterImageFormat,
+    header_mode: CbtHeaderMode,
     #[cfg(feature = "comicinfo")]
     comicinfo_builder: Option<ComicInfoBuilder>,
     #[cfg(feature = "comicinfo")]
@@ -80,10 +102,18 @@ where
             suffix: None,
             width: 4,
             images_format: Default::default(),
+            header_mode: CbtHeaderMode::Gnu,
             #[cfg(feature = "comicinfo")]
             comicinfo_builder: None,
             #[cfg(feature = "comicinfo")]
             auto_double_page: true,
+        }
+    }
+    fn create_header(&self) -> tar::Header {
+        match self.header_mode {
+            CbtHeaderMode::Gnu => tar::Header::new_gnu(),
+            CbtHeaderMode::Old => tar::Header::new_old(),
+            CbtHeaderMode::Ustar => tar::Header::new_ustar(),
         }
     }
     /// Add a suffix to the page name.
@@ -140,10 +170,15 @@ where
     #[cfg(feature = "comicinfo")]
     fn write_comicinfo(&mut self) -> Result<(), CbtWriterError> {
         if let Some(comicinfo) = self.comicinfo_builder.take() {
-            self.zip_inner_()?
-                .start_file(COMIC_INFO_XML, FileOptions::DEFAULT)?;
-            serde_xml_rs::to_writer(&mut self.zip_inner_()?, &(comicinfo.build()?))?;
-            self.zip_inner_()?.flush()?;
+            let mut buf = Cursor::new(Vec::<u8>::with_capacity(1024));
+            serde_xml_rs::to_writer(&mut buf, &comicinfo.build()?)?;
+            buf.rewind()?;
+            let mut header = self.create_header();
+            header.set_path(COMIC_INFO_XML)?;
+            header.set_size(buf.get_ref().len().try_into()?);
+            header.set_mode(0o644);
+            header.set_cksum();
+            self.tar_inner_()?.append(&header, buf)?;
         } else {
             #[cfg(feature = "log")]
             {
@@ -217,7 +252,7 @@ where
             (buf, name)
         };
         img_buf.rewind()?;
-        let mut header = tar::Header::new_gnu();
+        let mut header = self.create_header();
         header.set_path(filename)?;
         header.set_size(img_buf.get_ref().len().try_into()?);
         header.set_mode(0o644);
@@ -387,6 +422,65 @@ mod tests {
                         .ok_or(anyhow::anyhow!("No filename"))?
                 );
             }
+        }
+
+        Ok(())
+    }
+    #[cfg(feature = "comicinfo")]
+    #[test]
+    fn test_with_comic_info() -> anyhow::Result<()> {
+        let to_import = read_dir("test-data/images/no-order")?.collect::<io::Result<Vec<_>>>()?;
+
+        let mut file_to_use = tempfile::tempfile()?;
+
+        let writed_comic_info = {
+            use fake::{Fake, faker};
+
+            use crate::comicinfo::ComicInfoBuilder;
+
+            let mut writer = CbtWriter::new(BufWriter::new(&mut file_to_use))
+                .set_comicinfo_builder({
+                    let mut builer = ComicInfoBuilder::default();
+                    builer
+                        .title(faker::name::ja_jp::Title().fake())
+                        .summary(faker::lorem::en::Paragraph(1..3).fake())
+                        .series(faker::name::ja_jp::NameWithTitle().fake())
+                        .writer(faker::name::ja_jp::Name().fake())
+                        .colorist(faker::name::ja_jp::Name().fake())
+                        .translator(faker::name::en::Name().fake())
+                        .language_iso("en".into());
+                    builer
+                })
+                .width(NonZero::new(4).ok_or(anyhow::anyhow!("Unreachable"))?);
+            for img in &to_import {
+                writer.add_page(
+                    image::open(img.path())?,
+                    image::ImageFormat::from_path(img.path()).ok(),
+                )?;
+            }
+            let comic_info = writer.get_comicinfo_builder().cloned().unwrap().build()?;
+            writer.finish()?.flush()?;
+            comic_info
+        };
+
+        file_to_use.rewind()?;
+
+        {
+            use crate::read::comicinfo::GetComicInfo;
+
+            let mut reader = CbtReader::new(BufReader::new(&mut file_to_use))?;
+            let images = reader.pages();
+            assert_eq!(images.len(), to_import.len());
+            for (index, image) in images.into_iter().enumerate() {
+                assert_eq!(
+                    format!("{:0>4}", index + 1).as_str(),
+                    Path::new(&image)
+                        .file_prefix()
+                        .and_then(|d| d.to_str())
+                        .ok_or(anyhow::anyhow!("No filename"))?
+                );
+            }
+            assert_eq!(reader.get_comic_info()?, writed_comic_info);
         }
 
         Ok(())
