@@ -12,6 +12,7 @@ use std::{io::Read, path::Path};
 
 use image::open;
 
+/// Abstraction trait for writing comic book files
 pub trait ComicBookWriter {
     type Error;
     /// Add a page at the Comic book archive.
