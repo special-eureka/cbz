@@ -6,6 +6,7 @@ authors = ["tonymushah tonymushahdev06@yahoo.com"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/tonymushah/cbz"
 description = "Provide `cbz`, `cbt`, `cb7` reader and writers"
+exclude = ["test-data", ".zed", ".github"]
 
 [dependencies]
 derive_builder = {version = "0.20", optional = true}
