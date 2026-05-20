@@ -39,7 +39,7 @@ jobs:
         run: cargo clippy -F cbt,comicinfo --verbose
 
       - name: run clippy with cb7
-        run: cargo clippy -F cb7 --versbose
+        run: cargo clippy -F cb7 --verbose
       - name: run clippy with cb7 & comicinfo
         run: cargo clippy -F cb7,comicinfo --verbose
 
@@ -59,6 +59,6 @@ jobs:
       - name: prefetch
         run: cargo fetch --verbose
       - name: prebuild tests
-        run: cargo build --tests --all-features
+        run: cargo build --tests --all-features --verbose
       - name: Run test
-        run: cargo test --all-features
+        run: cargo test --all-features --verbose
