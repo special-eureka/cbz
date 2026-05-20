@@ -363,7 +363,7 @@ where
         let mut buffer = Cursor::new(Vec::<u8>::with_capacity(1024));
         io::copy(&mut file, &mut buffer)?;
         buffer.rewind()?;
-        let mut header = tar::Header::new_gnu();
+        let mut header = self.create_header();
         header.set_path(path)?;
         header.set_size(buffer.get_ref().len().try_into()?);
         header.set_mode(0o644);
