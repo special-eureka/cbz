@@ -284,7 +284,7 @@ where
             let _a = self.write_comicinfo();
             #[cfg(feature = "log")]
             {
-                _a.inspect_err(|err| {
+                let _ = _a.inspect_err(|err| {
                     log::error!("cannot write the `ComicInfo.xml` on drop : [{}]", err);
                 });
             }
@@ -293,7 +293,7 @@ where
             let _res = inner.finish();
             #[cfg(feature = "log")]
             {
-                _res.inspect_err(|err| {
+                let _ = _res.inspect_err(|err| {
                     log::error!("cannot finish 7z writer [{}]", err);
                 });
             }

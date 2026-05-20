@@ -300,7 +300,7 @@ where
             let _a = self.write_comicinfo();
             #[cfg(feature = "log")]
             {
-                _a.inspect_err(|err| {
+                let _ = _a.inspect_err(|err| {
                     log::error!("cannot write the `ComicInfo.xml` on drop : [{}]", err);
                 });
             }
