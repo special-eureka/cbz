@@ -155,17 +155,12 @@ where
         Ok(write)
     }
     #[cfg(feature = "comicinfo")]
-    fn write_comicinfo(&mut self) -> Result<(), CbtWriterError> {
+    fn write_comicinfo(&mut self) -> Result<(), Cb7WriterError> {
         if let Some(comicinfo) = self.comicinfo_builder.take() {
-            let mut buf = Cursor::new(Vec::<u8>::with_capacity(1024));
+            let mut buf = tempfile::spooled_tempfile(1024);
             serde_xml_rs::to_writer(&mut buf, &comicinfo.build()?)?;
             buf.rewind()?;
-            let mut header = self.create_header();
-            header.set_path(COMIC_INFO_XML)?;
-            header.set_size(buf.get_ref().len().try_into()?);
-            header.set_mode(0o644);
-            header.set_cksum();
-            self.tar_inner_()?.append(&header, buf)?;
+            self.add_file(COMIC_INFO_XML, buf)?;
         } else {
             #[cfg(feature = "log")]
             {
@@ -413,6 +408,65 @@ mod tests {
                         .ok_or(anyhow::anyhow!("No filename"))?
                 );
             }
+        }
+
+        Ok(())
+    }
+    #[cfg(feature = "comicinfo")]
+    #[test]
+    fn test_with_comic_info() -> anyhow::Result<()> {
+        let to_import = read_dir("test-data/images/no-order")?.collect::<io::Result<Vec<_>>>()?;
+
+        let mut file_to_use = tempfile::tempfile()?;
+
+        let writed_comic_info = {
+            use fake::{Fake, faker};
+
+            use crate::comicinfo::ComicInfoBuilder;
+
+            let mut writer = Cb7Writer::new(BufWriter::new(&mut file_to_use))?
+                .set_comicinfo_builder({
+                    let mut builer = ComicInfoBuilder::default();
+                    builer
+                        .title(faker::name::ja_jp::Title().fake())
+                        .summary(faker::lorem::en::Paragraph(1..3).fake())
+                        .series(faker::name::ja_jp::NameWithTitle().fake())
+                        .writer(faker::name::ja_jp::Name().fake())
+                        .colorist(faker::name::ja_jp::Name().fake())
+                        .translator(faker::name::en::Name().fake())
+                        .language_iso("en".into());
+                    builer
+                })
+                .width(NonZero::new(4).ok_or(anyhow::anyhow!("Unreachable"))?);
+            for img in &to_import {
+                writer.add_page(
+                    image::open(img.path())?,
+                    image::ImageFormat::from_path(img.path()).ok(),
+                )?;
+            }
+            let comic_info = writer.get_comicinfo_builder().cloned().unwrap().build()?;
+            writer.finish()?.flush()?;
+            comic_info
+        };
+
+        file_to_use.rewind()?;
+
+        {
+            use crate::read::comicinfo::GetComicInfo;
+
+            let mut reader = Cb7Reader::new(BufReader::new(&mut file_to_use))?;
+            let images = reader.pages();
+            assert_eq!(images.len(), to_import.len());
+            for (index, image) in images.into_iter().enumerate() {
+                assert_eq!(
+                    format!("{:0>4}", index + 1).as_str(),
+                    Path::new(&image)
+                        .file_prefix()
+                        .and_then(|d| d.to_str())
+                        .ok_or(anyhow::anyhow!("No filename"))?
+                );
+            }
+            assert_eq!(reader.get_comic_info()?, writed_comic_info);
         }
 
         Ok(())
