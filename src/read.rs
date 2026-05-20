@@ -12,7 +12,7 @@ pub mod cbz;
 #[cfg_attr(docsrs, doc(cfg(feature = "comicinfo")))]
 pub mod comicinfo;
 
-/// Abstraction trait for writing comic book files
+/// Abstraction trait for reading comic book files
 pub trait ComicBookReader {
     type Error;
     /// Get the list of images path as it is ordered from the archive
