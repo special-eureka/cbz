@@ -7,6 +7,7 @@
 //!
 //! Only [`v2`](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/schema/v2.0/ComicInfo.xsd) and [`v2.1`](https://github.com/anansi-project/comicinfo/blob/db8e1d84132f97403b226f2e12aaec1342c2a223/drafts/v2.1/ComicInfo.xsd) are supported.
 //!
+//! __NOTE: i don't recommend using all of these to `(de)serializable`[serde] types in other (de)serializer since those are only tailored for [`serde_xml_rs`].__
 
 use std::io;
 
