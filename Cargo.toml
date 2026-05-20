@@ -15,12 +15,13 @@ thiserror = {version = "2.0", optional = true}
 zip = {version = "8", optional = true}
 derive_more = {version = "2", optional = true}
 url = {version = "2", optional = true}
+tempfile = { version = "3", optional = true }
 
 [features]
-default = ["cbt"]
+default = ["cb7"]
 cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip", "image/gif"]
 cbt = ["dep:tar", "dep:thiserror", "derive_more/debug", "image/jpeg", "image/png", "image/gif"]
-cb7z = ["dep:sevenz-rust2"]
+cb7 = ["dep:sevenz-rust2", "dep:tempfile", "dep:thiserror"]
 log = ["dep:log"]
 comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display", "dep:thiserror", "derive_more/deref", "derive_more/into", "dep:derive_builder", "url/serde"]
 
