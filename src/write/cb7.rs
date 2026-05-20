@@ -295,7 +295,7 @@ where
             {
                 _res.inspect_err(|err| {
                     log::error!("cannot finish 7z writer [{}]", err);
-                })
+                });
             }
         }
     }

@@ -302,7 +302,7 @@ where
             {
                 _a.inspect_err(|err| {
                     log::error!("cannot write the `ComicInfo.xml` on drop : [{}]", err);
-                })
+                });
             }
         }
     }
