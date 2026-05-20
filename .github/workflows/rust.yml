@@ -1,0 +1,64 @@
+name: check and test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: check fmt
+        run: cargo fmt --check
+
+  clippy:
+    needs: ["check-fmt"]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: fetching packages
+        run: cargo fetch --verbose
+
+      - name: run clippy with default
+        run: cargo clippy --verbose
+
+      - name: run clippy with comicinfo
+        run: cargo clippy -F comicinfo --verbose
+
+      - name: run clippy with cbz
+        run: cargo clippy -F cbz --verbose
+      - name: run clippy with cbz & comicinfo
+        run: cargo clippy -F cbz,comicinfo --verbose
+
+      - name: run clippy with cbt
+        run: cargo clippy -F cbt --verbose
+      - name: run clippy with cbt & comicinfo
+        run: cargo clippy -F cbt,comicinfo --verbose
+
+      - name: run clippy with cb7
+        run: cargo clippy -F cb7 --versbose
+      - name: run clippy with cb7 & comicinfo
+        run: cargo clippy -F cb7,comicinfo --verbose
+
+      - name: run clippy with all features
+        run: cargo clippy --all-features --verbose
+
+  run-tests:
+    needs: ["clippy"]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: { { matrix.platform } }
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: prefetch
+        run: cargo fetch --verbose
+      - name: prebuild tests
+        run: cargo build --tests --all-features
+      - name: Run test
+        run: cargo test --all-features
