@@ -3,5 +3,5 @@
   "extends": [
     "config:recommended"
   ],
-  "commitMessagePrefix": "chore(deps)"
+  "commitMessagePrefix": "chore(deps):"
 }
