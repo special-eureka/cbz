@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 //! # cbz
 //!
 //! A Rust crate that allows you to read and write `cbz`, `cbt`, `cb7` files, with `ComicInfo.xml` metadata.
