@@ -10,6 +10,8 @@ pub mod cbz;
 
 use std::{io::Read, path::Path};
 
+use image::open;
+
 pub trait ComicBookWriter {
     type Error;
     /// Add a page at the Comic book archive.
@@ -50,3 +52,19 @@ pub trait ComicBookWriter {
         self.add_page(image, _format)
     }
 }
+
+/// Some utilities extension methods for [`ComicBookWriter`]
+pub trait ComicBookWriterExt: ComicBookWriter {
+    fn add_page_from_path<P>(&mut self, path: P) -> Result<(), Self::Error>
+    where
+        P: AsRef<Path>,
+        Self::Error: From<image::ImageError>,
+    {
+        self.add_page(
+            open(path.as_ref())?,
+            image::ImageFormat::from_path(path).ok(),
+        )
+    }
+}
+
+impl<C> ComicBookWriterExt for C where C: ComicBookWriter {}
