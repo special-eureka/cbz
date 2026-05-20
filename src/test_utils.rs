@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 pub const NO_ORDER_IMAGES: &[&str] = &[
     "1-ef569229607012ad566a286b258cb0beb41e302e2336021cff96d1a66bba2a6c.jpg",
     "2-0a6201f4743a5aeaedd0eab7e5e33db16ec4b034884be94251cd2cea1226afe3.jpg",

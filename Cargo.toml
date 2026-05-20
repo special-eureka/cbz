@@ -18,10 +18,10 @@ url = {version = "2", optional = true}
 tempfile = { version = "3", optional = true }
 
 [features]
-default = ["cb7"]
+default = []
 cbz = ["image/jpeg", "image/png", "dep:thiserror", "dep:zip", "image/gif"]
 cbt = ["dep:tar", "dep:thiserror", "derive_more/debug", "image/jpeg", "image/png", "image/gif"]
-cb7 = ["dep:sevenz-rust2", "dep:tempfile", "dep:thiserror"]
+cb7 = ["dep:sevenz-rust2", "dep:tempfile", "dep:thiserror", "sevenz-rust2/compress", "derive_more/debug"]
 log = ["dep:log"]
 comicinfo = ["dep:serde", "dep:serde-xml-rs", "derive_more/from_str", "derive_more/display", "dep:thiserror", "derive_more/deref", "derive_more/into", "dep:derive_builder", "url/serde"]
 
